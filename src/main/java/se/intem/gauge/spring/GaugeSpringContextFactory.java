@@ -37,6 +37,7 @@ public class GaugeSpringContextFactory {
         }
 
         this.context = new AnnotationConfigApplicationContext(split.toArray(new String[] {}));
+        context.registerShutdownHook();
 
         ClassInstanceManager.setClassInitializer(new SpringClassInitializer(context));
     }
