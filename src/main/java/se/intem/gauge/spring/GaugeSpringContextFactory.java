@@ -12,7 +12,7 @@ import java.util.Map;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class GaugeSpringContextFactory {
@@ -22,7 +22,7 @@ public class GaugeSpringContextFactory {
     /** Logger for this class. */
     private static final Logger log = LoggerFactory.getLogger(GaugeSpringContextFactory.class);
 
-    private ApplicationContext context;
+    private ConfigurableApplicationContext context;
 
     @BeforeSuite
     public void beforeSuite() {
@@ -32,11 +32,12 @@ public class GaugeSpringContextFactory {
         List<String> split = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(packages);
 
         if (split.isEmpty()) {
-            throw new IllegalStateException("Cannot create Spring context. Environment property "
-                    + KEY_SCAN_PACKAGES + " was empty.");
+            throw new IllegalStateException("Cannot create Spring context. Environment property " + KEY_SCAN_PACKAGES
+                    + " was empty.");
         }
 
         this.context = new AnnotationConfigApplicationContext(split.toArray(new String[] {}));
+        context.registerShutdownHook();
 
         ClassInstanceManager.setClassInitializer(new SpringClassInitializer(context));
     }
@@ -54,5 +55,8 @@ public class GaugeSpringContextFactory {
         for (WebDriver driver : drivers.values()) {
             driver.close();
         }
+
+        /* Close context so that @PreDestroy methods will get called. */
+        context.close();
     }
 }
