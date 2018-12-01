@@ -9,7 +9,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <source.level>1.8</source.level>
-        <spring.version>5.1.2.RELEASE</spring.version>
+        <spring.version>5.1.3.RELEASE</spring.version>
         <selenium.version>3.14.0</selenium.version>
     </properties>
 
