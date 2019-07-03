@@ -1,0 +1,32 @@
+variables:
+  MAVEN_CLI_OPTS: "--batch-mode --errors --show-version -DnonInteractive=true -Djava.awt.headless=true --threads=2"
+  MAVEN_OPTS: "-server -Xms256M -Xmx1024M -XX:PermSize=256M -XX:MaxPermSize=512M"
+
+stages:
+  - integration-test
+  - publish
+
+.test: &test
+  artifacts:
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+        - "*/target/failsafe-reports/TEST-*.xml"
+
+maven-integration-test:
+  <<: *test
+  stage: integration-test
+  script:
+    - mvn $MAVEN_CLI_OPTS clean test integration-test
+  except:
+    - develop
+    - master
+
+maven-deploy:
+  <<: *test
+  stage: publish
+  script:
+    - mvn $MAVEN_CLI_OPTS clean deploy
+  only:
+    - develop
+    - master
